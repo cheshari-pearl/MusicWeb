@@ -7,7 +7,6 @@ body {
     background-color: black;
     color: #fff;
 }
-
 .btn {
     border-radius: 20px;
     width: 30%;
@@ -48,5 +47,3 @@ label {
     padding: 20px;
     border-radius: 5px;
 }
-
-/* Add more custom styles as needed */
