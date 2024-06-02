@@ -1,0 +1,52 @@
+body {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 20px;
+    align-items: center;
+    margin: 15%;
+    margin-left: 35%;
+    background-color: black;
+    color: #fff;
+}
+
+.btn {
+    border-radius: 20px;
+    width: 30%;
+    padding: 20px 8px;
+    border-color: black 2px;
+    color: #fff;
+    cursor: pointer;
+    background-color: #120431;
+    margin-top: 5%;
+    font-size: 18px;
+    margin-left: 25%;
+}
+
+.form-control {
+    border-radius: 20px;
+    padding: 20px 250px;
+    margin-top: 5%;
+}
+
+label {
+    padding-top: 5px;
+}
+
+.list-group-item {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+}
+
+.song-list {
+    margin-top: 20px;
+}
+
+#song-detail {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* Add more custom styles as needed */
