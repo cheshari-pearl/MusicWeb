@@ -1,1 +1,1 @@
-This file has information on Musica.
+#Musica A Web App for Music Lovers
