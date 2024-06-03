@@ -1,223 +1,182 @@
 const APIController = (function() {
     const clientId = "e2c54682a9e9419aa31a7a8ce1ae29b5";
     const clientSecret = "92d05d9111ee4c9f8e08546103b38dc1";
-
+  
     const _getToken = async () => {
-        const result = await fetch('https://accounts.spotify.com/api/token', {
-            method: 'POST',
-            headers: {
-                'Content-Type' : 'application/x-www-form-urlencoded',
-                'Authorization' : 'Basic ' + btoa( clientId + ':' + clientSecret)
-            },
-            body: 'grant_type=client_credentials'
-        });
-        const data = await result.json();
-        return data.access_token;
-    }
-
-    const _getGenres = async (token) => {
-        const result = await fetch(`https://api.spotify.com/v1/browse/categories?locale=sv_US`, {
-            method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
-        });
-        const data = await result.json();
-        return data.categories.items;
-    }
-
-    const _getPlaylistByGenre = async (token, genreId) => {
-        const limit = 50;
-        const result = await fetch(`https://api.spotify.com/v1/browse/categories/${genreId}/playlists?limit=${limit}`, {
-            method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
-        });
-        const data = await result.json();
-        return data.playlists.items;
-    }
-
-    const _getTracks = async (token, tracksEndPoint) => {
-        const limit = 50;
-        const result = await fetch(`${tracksEndPoint}?limit=${limit}`, {
-            method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
-        });
-        const data = await result.json();
-        return data.items;
-    }
-
-    const _getTrack = async (token, trackEndPoint) => {
-        const result = await fetch(`${trackEndPoint}`, {
-            method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
-        });
-        const data = await result.json();
-        return data;
-    }
-
-    return {
-        getToken() {
-            return _getToken();
+      const result = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/x-www-form-urlencoded',
+          'Authorization' : 'Basic ' + btoa( clientId + ':' + clientSecret)
         },
-        getGenres(token) {
-            return _getGenres(token);
-        },
-        getPlaylistByGenre(token, genreId) {
-            return _getPlaylistByGenre(token, genreId);
-        },
-        getTracks(token, tracksEndPoint) {
-            return _getTracks(token, tracksEndPoint);
-        },
-        getTrack(token, trackEndPoint) {
-            return _getTrack(token, trackEndPoint);
+        body: 'grant_type=client_credentials'
+      });
+      const data = await result.json();
+      return data.access_token;
+    }
+  
+    const _searchArtists = async (token, query) => {
+      const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=artist`, {
+        headers: {
+          'Authorization' : 'Bearer ' + token
         }
+      });
+      const data = await response.json();
+      return data.artists.items;
     }
-})();
-
-const UIController = (function() {
+  
+    const _getArtistTopTracks = async (token, artistId) => {
+      const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?country=US`, {
+        headers: {
+          'Authorization' : 'Bearer ' + token
+        }
+      });
+      const data = await response.json();
+      return data.tracks;
+    }
+  
+    const _createPlaylist = async (token, userId, playlistName) => {
+      const response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+        method: 'POST',
+        headers: {
+          'Authorization' : 'Bearer ' + token,
+          'Content-Type' : 'application/json'
+        },
+        body: JSON.stringify({ name: playlistName })
+      });
+      const data = await response.json();
+      return data.id;
+    }
+  
+    const _addToPlaylist = async (token, playlistId, trackUris) => {
+      const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+        method: 'POST',
+        headers: {
+          'Authorization' : 'Bearer ' + token,
+          'Content-Type' : 'application/json'
+        },
+        body: JSON.stringify({ uris: trackUris })
+      });
+      return response.ok;
+    }
+  
+    return {
+      _getToken: _getToken,
+      _searchArtists: _searchArtists,
+      _getArtistTopTracks: _getArtistTopTracks,
+      _createPlaylist: _createPlaylist,
+      _addToPlaylist: _addToPlaylist
+    }
+  })();
+  
+  const UIController = (function() {
     const DOMElements = {
-        selectGenre: '#select_genre',
-        selectPlaylist: '#select_playlist',
-        buttonSubmit: '#btn_submit',
-        divSongDetail: '#song-detail',
-        hfToken: '#hidden_token',
-        divSonglist: '.song-list'
+      searchInput: '#searchInput',
+      searchButton: '#searchButton',
+      resultsList: '#resultsList',
+      createPlaylistButton: '#createPlaylistButton',
+      playlistNameInput: '#playlistNameInput',
+      playlistSongs: '#playlistSongs',
+      playButton: '#playButton'
     }
-
+  
+    const displayArtistResults = async (artists) => {
+      const resultsList = document.querySelector(DOMElements.resultsList);
+      resultsList.innerHTML = '';
+  
+      artists.forEach(async (artist) => {
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = artist.external_urls.spotify;
+        link.textContent = artist.name;
+  
+        const addButton = document.createElement('button');
+        addButton.textContent = 'Add to Playlist';
+        addButton.addEventListener('click', async () => {
+          const token = await APIController._getToken();
+          const userId = 'YOUR_USER_ID'; // Replace with your Spotify user ID
+          const tracks = await APIController._getArtistTopTracks(token, artist.id);
+          const trackUris = tracks.map(track => track.uri);
+          const playlistId = await APIController._createPlaylist(token, userId, 'YOUR_PLAYLIST_NAME'); // Replace with your playlist name
+          const success = await APIController._addToPlaylist(token, playlistId, trackUris);
+          if (success) {
+            alert(`${artist.name}'s top tracks added to your playlist`);
+          } else {
+            alert('Failed to add tracks to playlist.');
+          }
+        });
+  
+        listItem.appendChild(link);
+        listItem.appendChild(addButton);
+        resultsList.appendChild(listItem);
+      });
+    }
+  
+    const displayPlaylistSongs = (songs) => {
+      const playlistSongs = document.querySelector(DOMElements.playlistSongs);
+      playlistSongs.innerHTML = '';
+  
+      songs.forEach((song) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = song.name;
+        playlistSongs.appendChild(listItem);
+      });
+    }
+  
+    const playPlaylist = async () => {
+      const token = await APIController._getToken();
+      const userId = 'USER_ID'; 
+      const playlistId = 'PLAYLIST_ID'; 
+      const response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
+        headers: {
+          'Authorization' : 'Bearer ' + token
+        }
+      });
+      const data = await response.json();
+      const songs = data.items.map(item => item.track);
+      displayPlaylistSongs(songs);
+    }
+  
     return {
-        inputField() {
-            return {
-                genre: document.querySelector(DOMElements.selectGenre),
-                playlist: document.querySelector(DOMElements.selectPlaylist),
-                tracks: document.querySelector(DOMElements.divSonglist),
-                submit: document.querySelector(DOMElements.buttonSubmit),
-                songDetail: document.querySelector(DOMElements.divSongDetail)
-            }
-        },
-
-        createGenre(text, value) {
-            const html = `<option value="${value}">${text}</option>`;
-            document.querySelector(DOMElements.selectGenre).insertAdjacentHTML('beforeend', html);
-        },
-
-        createPlaylist(text, value) {
-            const html = `<option value="${value}">${text}</option>`;
-            document.querySelector(DOMElements.selectPlaylist).insertAdjacentHTML('beforeend', html);
-        },
-
-        createTrack(id, name, previewUrl) {
-            const html = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <a href="#" class="list-group-item list-group-item-action list-group-item-light flex-grow-1" id="${id}">${name}</a>
-                    ${this.createPlayButton(id, previewUrl)}
-                </div>
-            `;
-            document.querySelector(DOMElements.divSonglist).insertAdjacentHTML('beforeend', html);
-        },
-
-        createTrackDetail(img, title, artist) {
-            const detailDiv = document.querySelector(DOMElements.divSongDetail);
-            detailDiv.innerHTML = '';
-            const html =
-            `
-            <div class="row col-sm-12 px-0">
-                <img src="${img}" alt="">
-            </div>
-            <div class="row col-sm-12 px-0">
-                <label for="Genre" class="form-label col-sm-12">${title}:</label>
-            </div>
-            <div class="row col-sm-12 px-0">
-                <label for="artist" class="form-label col-sm-12">By ${artist}:</label>
-            </div>
-            `;
-            detailDiv.insertAdjacentHTML('beforeend', html)
-        },
-
-        resetTrackDetail() {
-            this.inputField().songDetail.innerHTML = '';
-        },
-
-        resetTracks() {
-            this.inputField().tracks.innerHTML = '';
-            this.resetTrackDetail();
-        },
-
-        resetPlaylist() {
-            this.inputField().playlist.innerHTML = '';
-            this.resetTracks();
-        },
-
-        storeToken(value) {
-            document.querySelector(DOMElements.hfToken).value = value;
-        },
-
-        getStoredToken() {
-            return {
-                token: document.querySelector(DOMElements.hfToken).value
-            }
-        },
-
-        createPlayButton(id, previewUrl) {
-            const html = `<button class="btn btn-success play-btn" data-track-id="${id}" data-preview-url="${previewUrl}">Play</button>`;
-            return html;
-        },
-
-        playTrack(previewUrl) {
-            const audio = new Audio(previewUrl);
-            audio.play();
-        }
+      DOMElements: DOMElements,
+      displayArtistResults: displayArtistResults,
+      playPlaylist: playPlaylist
     }
-})();
-
-const APPController = (function(UICtrl, APICtrl) {
-    const DOMInputs = UICtrl.inputField();
-
-    const loadGenres = async () => {
-        const token = await APICtrl.getToken();
-        UICtrl.storeToken(token);
-        const genres = await APICtrl.getGenres(token);
-        genres.forEach(element => UICtrl.createGenre(element.name, element.id));
-    }
-
-    DOMInputs.genre.addEventListener('change', async () => {
-        UICtrl.resetPlaylist();
-        const token = UICtrl.getStoredToken().token;
-        const genreSelect = UICtrl.inputField().genre;
-        const genreId = genreSelect.options[genreSelect.selectedIndex].value;
-        const playlist = await APICtrl.getPlaylistByGenre(token, genreId);
-        playlist.forEach(p => UICtrl.createPlaylist(p.name, p.tracks.href));
+  })();
+  
+  const APPController = (function(APICtrl, UICtrl) {
+    const DOMElements = UICtrl.DOMElements;
+  
+    const searchButton = document.querySelector(DOMElements.searchButton);
+    const createPlaylistButton = document.querySelector(DOMElements.createPlaylistButton);
+    const playButton = document.querySelector(DOMElements.playButton);
+  
+    searchButton.addEventListener('click', async () => {
+      const searchInput = document.querySelector(DOMElements.searchInput);
+      const searchQuery = searchInput.value;
+      const token = await APICtrl._getToken();
+      const artists = await APICtrl._searchArtists(token, searchQuery);
+      UICtrl.displayArtistResults(artists);
     });
-
-    DOMInputs.submit.addEventListener('click', async (e) => {
-        e.preventDefault();
-        UICtrl.resetTracks();
-        const token = UICtrl.getStoredToken().token;
-        const playlistSelect = UICtrl.inputField().playlist;
-        const tracksEndPoint = playlistSelect.options[playlistSelect.selectedIndex].value;
-        const tracks = await APICtrl.getTracks(token, tracksEndPoint);
-        tracks.forEach(el => UICtrl.createTrack(el.track.href, el.track.name, el.track.preview_url))
+  
+    createPlaylistButton.addEventListener('click', async () => {
+      const playlistNameInput = document.querySelector(DOMElements.playlistNameInput);
+      const playlistName = playlistNameInput.value;
+      const token = await APICtrl._getToken();
+      const userId = 'USER_ID'; 
+      const playlistId = await APICtrl._createPlaylist(token, userId, playlistName);
+      alert(`Playlist created with ID: ${playlistId}`);
     });
-
-    DOMInputs.tracks.addEventListener('click', async (e) => {
-        e.preventDefault();
-        UICtrl.resetTrackDetail();
-        const token = UICtrl.getStoredToken().token;
-        const trackEndpoint = e.target.id;
-        const track = await APICtrl.getTrack(token, trackEndpoint);
-        UICtrl.createTrackDetail(track.album.images[2].url, track.name, track.artists[0].name);
+  
+    playButton.addEventListener('click', async () => {
+      await UICtrl.playPlaylist();
     });
-
-    DOMInputs.tracks.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('play-btn')) {
-            const previewUrl = e.target.getAttribute('data-preview-url');
-            UICtrl.playTrack(previewUrl);
-        }
-    });
-
+  
     return {
-        init() {
-            console.log('App is starting');
-            loadGenres();
-        }
+      init: function() {
+        console.log('App is starting');
+      }
     }
-})(UIController, APIController);
-
-APPController.init()
+  })(APIController, UIController);
+  
+  APPController.init();

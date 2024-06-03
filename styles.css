@@ -1,49 +1,130 @@
 body {
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-size: 20px;
-    align-items: center;
-    margin: 15%;
-    margin-left: 35%;
-    background-color: black;
-    color: #fff;
-}
-.btn {
-    border-radius: 20px;
-    width: 30%;
-    padding: 20px 8px;
-    border-color: black 2px;
-    color: #fff;
-    cursor: pointer;
-    background-color: #120431;
-    margin-top: 5%;
-    font-size: 18px;
-    margin-left: 25%;
-}
-
-.form-control {
-    border-radius: 20px;
-    padding: 20px 250px;
-    margin-top: 5%;
-}
-
-label {
-    padding-top: 5px;
-}
-
-.list-group-item {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    padding: 10px;
-}
-
-.song-list {
-    margin-top: 20px;
-}
-
-#song-detail {
-    background-color: #333;
-    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #00ffff;
+  }
+  
+ 
+  header {
+    background-color: #000;
+    color: #00ffff;
     padding: 20px;
-    border-radius: 5px;
-}
+    text-align: center;
+  }
+  
+
+  main {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+
+  .search-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  #searchInput {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #00ffff;
+    border-radius: 4px;
+    background-color: #000;
+    color: #00ffff;
+    margin-right: 10px;
+  }
+  
+  #searchButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #00ffff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+ 
+  #resultsList {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+  }
+  
+  #resultsList li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  #resultsList li a {
+    color: #00ffff;
+    text-decoration: none;
+  }
+  
+  #resultsList li button {
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #00ffff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+
+  #createPlaylistButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #00ffff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  #playlistNameInput {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #00ffff;
+    border-radius: 4px;
+    background-color: #000;
+    color: #00ffff;
+    margin-bottom: 10px;
+  }
+  
+  #playlistSongs {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+  }
+  
+  #playlistSongs li {
+    margin-bottom: 10px;
+  }
+  
+  #playButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #00ffff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  
+  footer {
+    background-color: #000;
+    color: #00ffff;
+    padding: 10px;
+    text-align: center;
+  }
+  
