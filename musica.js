@@ -54,38 +54,15 @@ const APIController = (function() {
       return data.tracks;
     }
   
-    const _createPlaylist = async (token, userId, playlistName) => {
-      const response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
-        method: 'POST',
-        headers: {
-          'Authorization' : 'Bearer ' + token,
-          'Content-Type' : 'application/json'
-        },
-        body: JSON.stringify({ name: playlistName })
-      });
-      const data = await response.json();
-      return data.id;
-    }
   
-    const _addToPlaylist = async (token, playlistId, trackUris) => {
-      const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-        method: 'POST',
-        headers: {
-          'Authorization' : 'Bearer ' + token,
-          'Content-Type' : 'application/json'
-        },
-        body: JSON.stringify({ uris: trackUris })
-      });
-      return response.ok;
-    }
   
+   
     return {
       _getToken: _getToken,
       _getRefreshToken:_getRefreshToken,
       _searchArtists: _searchArtists,
-      _getArtistTopTracks: _getArtistTopTracks,
-      _createPlaylist: _createPlaylist,
-      _addToPlaylist: _addToPlaylist
+      _getArtistTopTracks: _getArtistTopTracks
+     
     }
   })();
   
@@ -94,10 +71,6 @@ const APIController = (function() {
       searchInput: '#searchInput',
       searchButton: '#searchButton',
       resultsList: '#resultsList',
-      createPlaylistButton: '#createPlaylistButton',
-      playlistNameInput: '#playlistNameInput',
-      playlistSongs: '#playlistSongs',
-      playButton: '#playButton'
     }
   
     const displayArtistResults = async (artists) => {
@@ -118,60 +91,24 @@ const APIController = (function() {
         link.href = artist.external_urls.spotify;
         link.textContent = 'Listen Here';
   
-        const addButton = document.createElement('button');
-        addButton.textContent = 'Add to Playlist';
-        addButton.addEventListener('click', async () => {
-          const token = await APIController._getToken();
-          const refresh_token = await APIController._getRefreshToken();
-          const userId = 'YOUR_USER_ID'; // Replace with Spotify user ID
-          const tracks = await APIController._getArtistTopTracks(token, artist.id);
-          const trackUris = tracks.map(track => track.uri);
-          const playlistId = await APIController._createPlaylist(token, userId, 'YOUR_PLAYLIST_NAME'); // Replace with playlist name
-          const success = await APIController._addToPlaylist(token, playlistId, trackUris);
-          if (success) {
-            alert(`${artist.name}'s top tracks added to your playlist`);
-          } else {
-            alert('Failed to add tracks to playlist.');
-          }
-        });
+       
+        
   
         listItem.appendChild(link);
         listItem.appendChild(artist_image);
         listItem.appendChild(title);
-        listItem.appendChild(addButton);
         resultsList.appendChild(listItem);
       });
     }
   
-    const displayPlaylistSongs = (songs) => {
-      const playlistSongs = document.querySelector(DOMElements.playlistSongs);
-      playlistSongs.innerHTML = '';
+    
   
-      songs.forEach((song) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = song.name;
-        playlistSongs.appendChild(listItem);
-      });
-    }
   
-    const playPlaylist = async () => {
-      const token = await APIController._getToken();
-      const userId = 'USER_ID'; 
-      const playlistId = 'PLAYLIST_ID'; 
-      const response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
-        headers: {
-          'Authorization' : 'Bearer ' + token
-        }
-      });
-      const data = await response.json();
-      const songs = data.items.map(item => item.track);
-      displayPlaylistSongs(songs);
-    }
   
     return {
       DOMElements: DOMElements,
       displayArtistResults: displayArtistResults,
-      playPlaylist: playPlaylist
+     
     }
   })();
   
@@ -179,8 +116,7 @@ const APIController = (function() {
     const DOMElements = UICtrl.DOMElements;
   
     const searchButton = document.querySelector(DOMElements.searchButton);
-    const createPlaylistButton = document.querySelector(DOMElements.createPlaylistButton);
-    const playButton = document.querySelector(DOMElements.playButton);
+  
   
     searchButton.addEventListener('click', async () => {
       const searchInput = document.querySelector(DOMElements.searchInput);
@@ -191,19 +127,9 @@ const APIController = (function() {
       UICtrl.displayArtistResults(artists);
     });
   
-    createPlaylistButton.addEventListener('click', async () => {
-      const playlistNameInput = document.querySelector(DOMElements.playlistNameInput);
-      const playlistName = playlistNameInput.value;
-      const token = await APICtrl._getToken();
-      const refreshToken = await APICtrl._getRefreshToken();
-      const userId = 'USER_ID'; 
-      const playlistId = await APICtrl._createPlaylist(token, userId, playlistName);
-      alert(`Playlist created with ID: ${playlistId}`);
-    });
+
   
-    playButton.addEventListener('click', async () => {
-      await UICtrl.playPlaylist();
-    });
+  
   
     return {
       init: function() {
