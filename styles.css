@@ -56,7 +56,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     width: 80%;
-    margin-left: 10%;
+    margin-left: 14%;
   }
 
   #result{
@@ -142,6 +142,12 @@ body {
     padding: 40px;
     background-color: rgb(30, 28, 48);
     text-align: center;
+  }
+
+  #searchSection{
+    background-image: url('music.avif');
+    background-size: cover;
+    
   }
 
   @media screen and (min-width: 280px) and (max-width:480){
