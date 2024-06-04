@@ -146,3 +146,30 @@ const APPController = (function(APICtrl, UICtrl) {
 })(APIController, UIController);
 
 APPController.init();
+
+const container = document.getElementById('image-container');
+function loadImage() {
+    const img = new Image();
+    img.src = images[currentIndex];
+    img.classList.add('image');
+    container.appendChild(img);
+    currentIndex = (currentIndex + 1) % images.length;
+}
+
+function animateImages() {
+    const imagesInContainer = document.querySelectorAll('.image');
+    imagesInContainer.forEach((img, index) => {
+        let x = window.innerWidth * index;
+        img.style.position = 'absolute';
+        img.style.left = `${x}px`;
+        setInterval(() => {
+            x -= img.offsetWidth;
+            if (x <= -img.offsetWidth) {
+                x = window.innerWidth * (index + 1);
+            }
+            img.style.left = `${x}px`;
+        }, 50);
+    });
+}
+  loadImage();
+  animateImages();
