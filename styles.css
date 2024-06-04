@@ -131,24 +131,51 @@ body {
   }
   
  
-  .listItems a{
+  .listItems {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    position: relative; /* Ensure positioning context for absolute positioning of button */
+    text-align: center; /* Center the content */
+  }
+  
+  .listItems img {
+    width: 200px; /* Enlarge the image size */
+    height: 200px; /* Enlarge the image size */
+    display: block;
+    margin: 0 auto 10px; /* Center the image and add space below */
+    cursor: pointer; /* Change cursor to pointer on hover */
+  }
+  
+  .listItems h3 {
+    margin: 0;
+  }
+  
+  .listItems .listenButton {
+    position: absolute;
+    bottom: 10px; /* Adjust button position from bottom */
+    left: 50%;
+    transform: translateX(-50%); /* Center the button horizontally */
     text-decoration: none;
-    color: #00ffff;
+    color: #333;
+    background-color: #f8f8f8;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
   }
+  
+  .listItems .listenButton:hover {
+    background-color: #e0e0e0;
+  }
+  
 
-  .listItems{
-    width: 10%;
-    height: 80px;
-    padding: 40px;
-    background-color: rgb(30, 28, 48);
-    text-align: center;
-  }
 
-  #searchSection{
-    background-image: url('music.avif');
-    background-size: cover;
-    
-  }
+
+
+
+
+ 
+  
 
   @media screen and (min-width: 280px) and (max-width:480){
     .listItems{
