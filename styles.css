@@ -56,6 +56,11 @@ body {
     display: flex;
     flex-wrap: wrap;
     width: 80%;
+    margin-left: 10%;
+  }
+
+  #result{
+    text-align: center;
   }
   
   #resultsList li {
