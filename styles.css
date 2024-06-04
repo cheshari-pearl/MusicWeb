@@ -134,11 +134,25 @@ body {
   .listItems a{
     text-decoration: none;
     color: #00ffff;
-
   }
 
   .listItems{
     width: 10%;
+    height: 155px;
+    padding: 40px;
     background-color: rgb(30, 28, 48);
+    text-align: center;
+  }
+
+  @media screen and (min-width: 280px) and (max-width:480){
+    .listItems{
+      width: 35%;
+      height: 155px;
+      padding: 23px;
+      margin-left: 434px;
+      background-color: rgb(30, 28, 48);
+      text-align: right;
+    }
     
+ 
   }
