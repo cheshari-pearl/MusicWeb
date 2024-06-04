@@ -14,6 +14,25 @@ const APIController = (function() {
       const data = await result.json();
       return data.access_token;
     }
+
+    const _getRefreshToken = async () => {
+      const refreshToken = localStorage.getItem('refresh_token');
+      const url = "https://accounts.spotify.com/api/token";
+       const payload = {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/x-www-form-urlencoded'
+         },
+         body: new URLSearchParams({
+           grant_type: 'refresh_token',
+           refresh_token: refreshToken,
+           client_id: clientId
+         })
+       }
+       const result = await fetch(url, payload);
+       const data = await result.json();
+       return data.refresh_token
+     }
   
     const _searchArtists = async (token, query) => {
       const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=artist`, {
@@ -26,7 +45,7 @@ const APIController = (function() {
     }
   
     const _getArtistTopTracks = async (token, artistId) => {
-      const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?country=US`, {
+      const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?country=Kenya`, {
         headers: {
           'Authorization' : 'Bearer ' + token
         }
@@ -62,6 +81,7 @@ const APIController = (function() {
   
     return {
       _getToken: _getToken,
+      _getRefreshToken:_getRefreshToken,
       _searchArtists: _searchArtists,
       _getArtistTopTracks: _getArtistTopTracks,
       _createPlaylist: _createPlaylist,
@@ -85,19 +105,28 @@ const APIController = (function() {
       resultsList.innerHTML = '';
   
       artists.forEach(async (artist) => {
-        const listItem = document.createElement('li');
+        const listItem = document.createElement('div');
+        listItem.setAttribute("class", "listItems");
+        const artist_image = document.createElement('img');
+        const img_url = ["images"];
+        for(const url of img_url[0]){
+            artist_image.src = url.url;
+        }
+        const title = document.createElement('h3');
+        title.innerHTML = artist.name;        
         const link = document.createElement('a');
         link.href = artist.external_urls.spotify;
-        link.textContent = artist.name;
+        link.textContent = 'Listen Here';
   
         const addButton = document.createElement('button');
         addButton.textContent = 'Add to Playlist';
         addButton.addEventListener('click', async () => {
           const token = await APIController._getToken();
-          const userId = 'YOUR_USER_ID'; // Replace with your Spotify user ID
+          const refresh_token = await APIController._getRefreshToken();
+          const userId = 'YOUR_USER_ID'; // Replace with Spotify user ID
           const tracks = await APIController._getArtistTopTracks(token, artist.id);
           const trackUris = tracks.map(track => track.uri);
-          const playlistId = await APIController._createPlaylist(token, userId, 'YOUR_PLAYLIST_NAME'); // Replace with your playlist name
+          const playlistId = await APIController._createPlaylist(token, userId, 'YOUR_PLAYLIST_NAME'); // Replace with playlist name
           const success = await APIController._addToPlaylist(token, playlistId, trackUris);
           if (success) {
             alert(`${artist.name}'s top tracks added to your playlist`);
@@ -107,6 +136,8 @@ const APIController = (function() {
         });
   
         listItem.appendChild(link);
+        listItem.appendChild(artist_image);
+        listItem.appendChild(title);
         listItem.appendChild(addButton);
         resultsList.appendChild(listItem);
       });
@@ -155,6 +186,7 @@ const APIController = (function() {
       const searchInput = document.querySelector(DOMElements.searchInput);
       const searchQuery = searchInput.value;
       const token = await APICtrl._getToken();
+      const refreshToken = await APICtrl._getRefreshToken();
       const artists = await APICtrl._searchArtists(token, searchQuery);
       UICtrl.displayArtistResults(artists);
     });
@@ -163,6 +195,7 @@ const APIController = (function() {
       const playlistNameInput = document.querySelector(DOMElements.playlistNameInput);
       const playlistName = playlistNameInput.value;
       const token = await APICtrl._getToken();
+      const refreshToken = await APICtrl._getRefreshToken();
       const userId = 'USER_ID'; 
       const playlistId = await APICtrl._createPlaylist(token, userId, playlistName);
       alert(`Playlist created with ID: ${playlistId}`);

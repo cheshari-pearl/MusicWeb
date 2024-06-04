@@ -51,9 +51,11 @@ body {
   
  
   #resultsList {
-    list-style-type: none;
-    padding: 0;
-    width: 100%;
+    padding: 50px;
+    gap:20px;
+    display: flex;
+    flex-wrap: wrap;
+    width: 80%;
   }
   
   #resultsList li {
@@ -61,11 +63,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  
-  #resultsList li a {
-    color: #00ffff;
-    text-decoration: none;
   }
   
   #resultsList li button {
@@ -128,3 +125,15 @@ body {
     text-align: center;
   }
   
+ 
+  .listItems a{
+    text-decoration: none;
+    color: #00ffff;
+
+  }
+
+  .listItems{
+    width: 10%;
+    background-color: yellow;
+    
+  }
